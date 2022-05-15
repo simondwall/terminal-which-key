@@ -154,8 +154,8 @@ fn draw(keybindings: &[Keybinding], style: &Styles) -> Result<()> {
         queue!(
             stdout(),
             MoveTo(
-                middle_x - columns / 2 * column_size + i % columns * column_size
-                    - if columns % 2 >= 1 { column_size / 2 } else { 0 },
+                middle_x - columns / 2 * (column_size + 1) + i % columns * (column_size + 1)
+                    - if columns % 2 >= 1 { (column_size + 1) / 2 } else { 0 },
                 middle_y + i / columns - rows / 2
             ),
             Print(label)
