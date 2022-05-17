@@ -7,24 +7,24 @@ and [vim-which-key](https://github.com/liuchengxu/vim-which-key).
 ## Installation
 
 Currently it has to be built from source:
-'''bash
+```bash
 git clone https://github.com/simondwall/terminal-which-key.git
 cargo install --path terminal-which-key
-'''
+```
 
 ## Usage
 
-Add configuration files to your '$HOME/.config/terminal-which-key/' folder.
+Add configuration files to your `$HOME/.config/terminal-which-key/` folder.
 Start terminal-which-key:
-'''bash
+```bash
 terminal-which-key run
-'''
+```
 
 You can also get the height and width required by running
-'''bash
+```bash
 terminal-which-key width
 terminal-which-key height
-'''
+```
 
 ## Example config
 TODO
