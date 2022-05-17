@@ -16,29 +16,66 @@ use crossterm::{
     Result,
 };
 use std::{
+    cmp::max,
     io::{stdout, Write},
     process::Command,
 };
 
 fn main() -> Result<()> {
+    let args = std::env::args().collect::<Vec<String>>();
+    let args_str: Vec<&str> = args.iter().map(|arg| &arg[..]).collect();
+
+    let (style, keybindings) = load_config();
+
+    match args_str[..] {
+        [_, "width"] => println!("{}", get_size(&keybindings, &style).0),
+        [_, "height"] => println!("{}", get_size(&keybindings, &style).1),
+        [_, "run"] => run(&keybindings, &style)?,
+        _ => {}
+    }
+
+    Ok(())
+}
+
+fn run(keybindings: &[Keybinding], style: &Styles) -> Result<()> {
     // Initialize
     enable_raw_mode()?;
-    let (style, keybindings) = load_config();
     queue!(stdout(), EnterAlternateScreen, Hide)?;
 
     // Run
-    let mut current_keybindings = &keybindings[..];
+    let mut current_keybindings = keybindings;
+    let mut pressed_keys: Vec<char> = Vec::new();
     loop {
         queue!(stdout(), Clear(ClearType::All))?;
-        draw(current_keybindings, &style)?;
+        draw(current_keybindings, style)?;
         stdout().flush()?;
         match read()? {
             Key(KeyEvent {
                 code: KeyCode::Char(key),
                 modifiers: KeyModifiers::NONE,
-            }) => match run_command(current_keybindings, &key) {
-                Some(new_keybindings) => current_keybindings = new_keybindings,
-                None => break,
+            }) => {
+                match run_command(current_keybindings, &key) {
+                    Some(new_keybindings) => current_keybindings = new_keybindings,
+                    None => break,
+                };
+                pressed_keys.push(key)
+            }
+            Key(KeyEvent {
+                code: KeyCode::Backspace,
+                modifiers: KeyModifiers::NONE
+            }) => {
+                if pressed_keys.is_empty() {
+                    break;
+                }
+                pressed_keys.pop();
+                let mut new_keybindings = keybindings;
+                for pressed_key in &pressed_keys {
+                    match run_command(new_keybindings, pressed_key) {
+                        Some(b) => new_keybindings = b,
+                        None => break,
+                    }
+                }
+                current_keybindings = new_keybindings;
             },
             Key(KeyEvent {
                 code: KeyCode::Esc,
@@ -50,8 +87,7 @@ fn main() -> Result<()> {
 
     // Destruct
     disable_raw_mode()?;
-    execute!(stdout(), Show, LeaveAlternateScreen)?;
-    Ok(())
+    execute!(stdout(), Show, LeaveAlternateScreen)
 }
 
 fn run_command<'a>(keybindings: &'a [Keybinding], key: &char) -> Option<&'a [Keybinding]> {
@@ -139,15 +175,17 @@ fn draw(keybindings: &[Keybinding], style: &Styles) -> Result<()> {
 
     let label_amount: u16 = labels.len() as u16;
 
-    let middle_x = width / 2;
-    let middle_y = height / 2;
-    let columns: u16 = (label_amount as f64).sqrt().ceil() as u16;
+    let columns = (label_amount as f64).sqrt().ceil() as u16;
     let rows = label_amount / columns
         + if columns + label_amount / columns < label_amount {
             1
         } else {
             0
-        };
+        }
+        - if label_amount % columns > 0 { 0 } else { 1 };
+
+    let middle_x = width / 2;
+    let middle_y = height / 2;
 
     for (index, label) in labels.iter().enumerate() {
         let i: u16 = index.try_into().unwrap();
@@ -155,7 +193,11 @@ fn draw(keybindings: &[Keybinding], style: &Styles) -> Result<()> {
             stdout(),
             MoveTo(
                 middle_x - columns / 2 * (column_size + 1) + i % columns * (column_size + 1)
-                    - if columns % 2 >= 1 { (column_size + 1) / 2 } else { 0 },
+                    - if columns % 2 >= 1 {
+                        (column_size + 1) / 2
+                    } else {
+                        0
+                    },
                 middle_y + i / columns - rows / 2
             ),
             Print(label)
@@ -163,4 +205,35 @@ fn draw(keybindings: &[Keybinding], style: &Styles) -> Result<()> {
     }
 
     Ok(())
+}
+
+fn get_local_size(keybindings: &[Keybinding], style: &Styles) -> (u16, u16) {
+    let column_size = get_local_column_size(keybindings, style);
+
+    let label_amount: u16 = keybindings.len() as u16;
+
+    let columns: u16 = (label_amount as f64).sqrt().ceil() as u16;
+    let rows = label_amount / columns
+        + if columns + label_amount / columns < label_amount {
+            1
+        } else {
+            0
+        }
+        - if label_amount % columns > 0 { 0 } else { 1 };
+
+    ((column_size + 1) * columns + 4, rows + 2)
+}
+
+fn get_size(keybindings: &[Keybinding], style: &Styles) -> (u16, u16) {
+    let mut current = get_local_size(keybindings, style);
+
+    for keybinding in keybindings {
+        if let Commands::Menu(bindings) = &keybinding.commands {
+            let (new_x, new_y) = get_size(bindings, style);
+            current.0 = max(current.0, new_x);
+            current.1 = max(current.1, new_y);
+        }
+    }
+
+    current
 }
