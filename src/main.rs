@@ -62,7 +62,7 @@ fn run(keybindings: &[Keybinding], style: &Styles) -> Result<()> {
             }
             Key(KeyEvent {
                 code: KeyCode::Backspace,
-                modifiers: KeyModifiers::NONE
+                modifiers: KeyModifiers::NONE,
             }) => {
                 if pressed_keys.is_empty() {
                     break;
@@ -76,7 +76,7 @@ fn run(keybindings: &[Keybinding], style: &Styles) -> Result<()> {
                     }
                 }
                 current_keybindings = new_keybindings;
-            },
+            }
             Key(KeyEvent {
                 code: KeyCode::Esc,
                 modifiers: _,
@@ -91,14 +91,23 @@ fn run(keybindings: &[Keybinding], style: &Styles) -> Result<()> {
 }
 
 fn run_command<'a>(keybindings: &'a [Keybinding], key: &char) -> Option<&'a [Keybinding]> {
+    fn a(keybinding: &'_ Keybinding) -> Option<&'_ [Keybinding]> {
+        match &keybinding.commands {
+            Commands::Menu(new_keybindings) => Some(new_keybindings),
+            Commands::Command(command) => {
+                Command::new("sh").arg("-c").arg(command).output().unwrap();
+                None
+            }
+        }
+    }
     for keybinding in keybindings {
         if &keybinding.key == key {
-            return match &keybinding.commands {
-                Commands::Menu(new_keybindings) => Some(new_keybindings),
-                Commands::Command(command) => {
-                    Command::new("sh").arg("-c").arg(command).output().unwrap();
-                    None
-                }
+            return match &keybinding.condition {
+                Some(command) => match is_disabled(command) {
+                    true => None,
+                    false => a(keybinding)
+                },
+                _ => a(keybinding),
             };
         }
     }
@@ -136,35 +145,68 @@ fn load_config() -> (Styles, Vec<Keybinding>) {
 }
 
 fn create_labels(keybindings: &[Keybinding], style: &Styles) -> Vec<String> {
+    fn enabled_label(binding: &Keybinding, style: &Styles) -> String {
+        format!(
+            "{key} {arrow} {name}{menu}",
+            key = binding
+                .key
+                .with(style.colors.key_foreground.to_color())
+                .on(style.colors.key_background.to_color()),
+            arrow = style
+                .icons
+                .arrow
+                .as_str()
+                .with(style.colors.arrow_foreground.to_color())
+                .on(style.colors.arrow_background.to_color()),
+            name = binding
+                .name
+                .as_str()
+                .with(style.colors.name_foreground.to_color())
+                .on(style.colors.name_background.to_color()),
+            menu = match binding.commands {
+                Commands::Menu(_) => " ".to_owned() + &style.icons.menu,
+                _ => "".to_owned(),
+            }
+            .as_str()
+            .with(style.colors.menu_foreground.to_color())
+            .on(style.colors.menu_background.to_color())
+        )
+    }
+    fn disabled_label(binding: &Keybinding, style: &Styles) -> String {
+        format!(
+            "{key} {arrow} {name}{menu}",
+            key = binding.key,
+            arrow = style.icons.arrow,
+            name = binding.name,
+            menu = match binding.commands {
+                Commands::Menu(_) => " ".to_owned() + &style.icons.menu,
+                _ => "".to_owned(),
+            }
+        )
+        .on(style.colors.disabled_background.to_color())
+        .with(style.colors.disabled_foreground.to_color())
+        .to_string()
+    }
+
     keybindings
         .iter()
-        .map(|binding| {
-            format!(
-                "{key} {arrow} {name} {menu}",
-                key = binding
-                    .key
-                    .with(style.colors.key_foreground.to_color())
-                    .on(style.colors.key_background.to_color()),
-                arrow = style
-                    .icons
-                    .arrow
-                    .as_str()
-                    .with(style.colors.arrow_foreground.to_color())
-                    .on(style.colors.arrow_background.to_color()),
-                name = binding
-                    .name
-                    .as_str()
-                    .with(style.colors.name_foreground.to_color())
-                    .on(style.colors.name_background.to_color()),
-                menu = match binding.commands {
-                    Commands::Menu(_) => &style.icons.menu,
-                    _ => "",
-                }
-                .with(style.colors.menu_foreground.to_color())
-                .on(style.colors.menu_background.to_color())
-            )
+        .map(|binding| match &binding.condition {
+            Some(command) => match is_disabled(command) {
+                true => disabled_label(binding, style),
+                false => enabled_label(binding, style),
+            },
+            None => enabled_label(binding, style),
         })
         .collect()
+}
+
+fn is_disabled(command: &str) -> bool {
+    !Command::new("sh")
+        .arg("-c")
+        .arg(command)
+        .status()
+        .unwrap()
+        .success()
 }
 
 fn draw(keybindings: &[Keybinding], style: &Styles) -> Result<()> {

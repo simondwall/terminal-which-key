@@ -29,6 +29,10 @@ pub mod styles {
         pub name_background: (u8, u8, u8),
         #[serde(default = "Colors::default_name_foreground")]
         pub name_foreground: (u8, u8, u8),
+        #[serde(default = "Colors::default_disabled_background")]
+        pub disabled_background: (u8, u8, u8),
+        #[serde(default = "Colors::default_disabled_foreground")]
+        pub disabled_foreground: (u8, u8, u8),
     }
     impl Default for Colors {
         fn default() -> Self {
@@ -41,6 +45,8 @@ pub mod styles {
                 menu_foreground: (0x10, 0x73, 0xcc),
                 name_background: (0x00, 0x00, 0x00),
                 name_foreground: (0xff, 0xff, 0xff),
+                disabled_background: (0x00, 0x00, 0x00),
+                disabled_foreground: (0xff, 0x65, 0x60),
             }
         }
     }
@@ -68,6 +74,12 @@ pub mod styles {
         }
         fn default_name_foreground() -> (u8, u8, u8) {
             (0xff, 0xff, 0xff)
+        }
+        fn default_disabled_background() -> (u8, u8, u8) {
+            (0x00, 0x00, 0x00)
+        }
+        fn default_disabled_foreground() -> (u8, u8, u8) {
+            (0xff, 0x65, 0x60)
         }
     }
 
@@ -118,6 +130,7 @@ pub mod keybindings {
         pub key: char,
         pub description: Option<String>,
         pub commands: Commands,
+        pub condition: Option<String>,
     }
 
     #[derive(Deserialize, Debug)]
