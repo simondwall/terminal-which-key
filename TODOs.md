@@ -1,7 +1,6 @@
 - [ ] Only Check condition once
 - [ ] Display name of current bindings menu?
 - [ ] Color formatting adjustments
-- [ ] Set current working directory?
 - [ ] Keybindings.yaml: change commands into something better
 - [ ] Settings file
     - [ ] Custom path to shell executer
