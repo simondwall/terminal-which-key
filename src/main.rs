@@ -95,7 +95,11 @@ fn run_command<'a>(keybindings: &'a [Keybinding], key: &char) -> Option<&'a [Key
         match &keybinding.commands {
             Commands::Menu(new_keybindings) => Some(new_keybindings),
             Commands::Command(command) => {
-                Command::new("sh").arg("-c").arg(command).output().unwrap();
+                Command::new("sh")
+                    .arg("-c")
+                    .arg(command)
+                    .output()
+                    .unwrap();
                 None
             }
         }
@@ -105,7 +109,7 @@ fn run_command<'a>(keybindings: &'a [Keybinding], key: &char) -> Option<&'a [Key
             return match &keybinding.condition {
                 Some(command) => match is_disabled(command) {
                     true => None,
-                    false => a(keybinding)
+                    false => a(keybinding),
                 },
                 _ => a(keybinding),
             };
