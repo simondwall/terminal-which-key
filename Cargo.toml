@@ -7,5 +7,3 @@ edition = "2021"
 
 [dependencies]
 crossterm = "0.23.2"
-serde_yaml = "0.8"
-serde = { version = "1.0.137", features = ["derive"] }
