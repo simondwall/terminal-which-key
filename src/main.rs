@@ -1,8 +1,8 @@
 use anyhow::Result;
 use crossterm::terminal::{disable_raw_mode, enable_raw_mode, size};
 use portable_pty::{native_pty_system, CommandBuilder, MasterPty, PtySize};
-use tokio::sync::oneshot;
 use std::io::{stdin, stdout, Read, Write};
+use tokio::sync::oneshot;
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -33,42 +33,40 @@ async fn pty_forwarding_task() -> Result<()> {
 
     let cmd = CommandBuilder::new("fish");
     slave.spawn_command(cmd)?;
-    
+
     let (tx, rx) = oneshot::channel();
 
-    let print_handle = tokio::spawn(print_task(master.try_clone_reader()?));
+    let print_handle = tokio::spawn(print_task(master.try_clone_reader()?, tx));
     let input_handle = tokio::spawn(input_task(master, rx));
 
     print_handle.await??;
-    tx.send(()).unwrap();
     input_handle.await??;
 
     Ok(())
 }
 
 async fn input_task(mut master: Box<dyn MasterPty + Send>, mut rx: oneshot::Receiver<()>) -> Result<()> {
-    let mut input = stdin().bytes();
-    loop {
-        if rx.try_recv().is_ok() {
+    for input in stdin().bytes() {
+        if rx.try_recv().is_err() {
+            match input? {
+                0 => master.write(b"Hello, World!"),
+                byte => master.write(&[byte]),
+            }?;
+        } else {
             break;
         }
-        match input.next() {
-            Some(Ok(3)) => break,
-            Some(Ok(0)) => master.write(b"Hello, World!"),
-            Some(Ok(byte)) => master.write(&[byte]),
-            _ => Ok(0)
-        }?;
     }
 
     Ok(())
 }
 
-async fn print_task(reader: Box<dyn Read + Send>) -> Result<()> {
+async fn print_task(reader: Box<dyn Read + Send>, tx: oneshot::Sender<()>) -> Result<()> {
     let mut out = stdout();
     for character in reader.bytes() {
         out.write_all(&[character.unwrap()])?;
         out.flush()?;
     }
+    tx.send(()).unwrap();
 
     Ok(())
 }
