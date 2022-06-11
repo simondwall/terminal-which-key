@@ -1,5 +1,6 @@
 use anyhow::Result;
 use crossterm::terminal::{disable_raw_mode, enable_raw_mode, size};
+use nonblock::NonBlockingReader;
 use portable_pty::{native_pty_system, CommandBuilder, MasterPty, PtySize};
 use std::io::{stdin, stdout, Read, Write};
 use tokio::sync::oneshot;
@@ -45,14 +46,21 @@ async fn pty_forwarding_task() -> Result<()> {
     Ok(())
 }
 
-async fn input_task(mut master: Box<dyn MasterPty + Send>, mut rx: oneshot::Receiver<()>) -> Result<()> {
-    for input in stdin().bytes() {
-        if rx.try_recv().is_err() {
-            match input? {
+async fn input_task(mut master: Box<dyn MasterPty + Send>, mut rx: oneshot::Receiver<u8>) -> Result<()> {
+    let mut nonblocking_reader = NonBlockingReader::from_fd(stdin())?;
+
+    while !nonblocking_reader.is_eof() {
+        let mut data = vec![];
+        nonblocking_reader.read_available(&mut data)?;
+
+        for byte in data {
+            match byte {
                 0 => master.write(b"Hello, World!"),
                 byte => master.write(&[byte]),
             }?;
-        } else {
+        }
+        
+        if rx.try_recv().is_ok() {
             break;
         }
     }
@@ -60,13 +68,14 @@ async fn input_task(mut master: Box<dyn MasterPty + Send>, mut rx: oneshot::Rece
     Ok(())
 }
 
-async fn print_task(reader: Box<dyn Read + Send>, tx: oneshot::Sender<()>) -> Result<()> {
+async fn print_task(reader: Box<dyn Read + Send>, tx: oneshot::Sender<u8>) -> Result<()> {
     let mut out = stdout();
     for character in reader.bytes() {
         out.write_all(&[character.unwrap()])?;
         out.flush()?;
     }
-    tx.send(()).unwrap();
+    
+    tx.send(0).unwrap();
 
     Ok(())
 }
