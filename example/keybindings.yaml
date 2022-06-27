@@ -1,0 +1,99 @@
+################################
+#  abcdefghijklmnopqrstuvwxyz  #
+#    x   xx xxx   x   x  x     #
+################################
+
+- name: tmux windows
+  key: w
+  commands: 
+    - name: next window
+      key: l
+      commands: "tmux select-window -n"
+    - name: previous window
+      key: h
+      commands: "tmux select-window -p"
+    - name: create new window
+      key: c
+      commands: "tmux new-window"
+    - name: break pane
+      key: b
+      commands: tmux break-pane
+    # - name: rename
+    #   key: r
+    #   commands: tmux rename-window $(tmux new-window read)
+
+- name: tmux panes
+  key: p
+  commands:
+    - name: quit
+      key: q
+      commands: "tmux kill-pane"
+    - name: split horizontally
+      key: "|"
+      commands: "tmux split-window -h -c \"#{pane_current_path}\""
+    - name: split vertically
+      key: "-"
+      commands: "tmux split-window -v -c \"#{pane_current_path}\""
+
+- name: tmux
+  key: t
+  commands:
+    - name: reload config
+      key: r
+      commands: tmux source-file ~/.config/tmux/tmux.conf
+    - name: run command
+      key: ":"
+      commands: tmux command-prompt
+    - name: list sessions
+      key: s
+      commands: tmux new-window -n session-list "tmux list-sessions | less"
+
+- name: pane right
+  key: l
+  commands: "tmux select-pane -R"
+
+- name: pane up
+  key: k
+  commands: "tmux select-pane -U"
+
+- name: pane down
+  key: j
+  commands: "tmux select-pane -D"
+
+- name: pane left
+  key: h
+  commands: "tmux select-pane -L"
+
+- name: code
+  key: c
+  commands:
+    - name: cargo
+      key: c
+      condition: find cargo.toml
+      commands:
+        - name: run
+          key: r
+          commands: tmux new-window cargo run
+        - name: test
+          key: t
+          commands: tmux new-window cargo test
+        - name: build
+          key: b
+          commands: tmux new-window cargo build
+    - name: pip
+      key: p
+      commands: echo Hello
+      condition: exit 1
+
+- name: git
+  key: g
+  condition: find .git/
+  commands:
+    - name: lazygit
+      key: l
+      commands: tmux new-window -n lazygit lazygit
+
+# - name: test
+#   key: y
+#   condition: exit $(( $RANDOM % 2 ))
+#   commands: tmux new-window
