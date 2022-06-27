@@ -1,13 +1,6 @@
-[package]
-name = "terminal-which-key"
-version = "0.1.0"
-edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
-[dependencies]
-crossterm = "0.23.2"
-anyhow = "1.0.57"
-portable-pty = "0.7.0"
-tokio = { version = "1.19.2", features = ["full"] }
-nonblock = "0.1.0"
+[workspace]
+members = [
+    "terminal-which-key",
+    "pseudo-terminal-task",
+    "terminal-window"
+]
