@@ -1,0 +1,14 @@
+[package]
+name = "terminal-which-key"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+ansi-escapes = "0.1.1"
+crossterm = "0.23.2"
+futures = { version = "0.3.23", features = ["executor"] }
+portable-pty = "0.7.0"
+tokio = { version = "1.19.2", features = ["full"] }
+vt100 = "0.15.1"
