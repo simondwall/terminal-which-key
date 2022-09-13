@@ -1,10 +1,19 @@
 use std::io::Write;
 
-use crate::nbr::NonBlockingReader;
+use crate::non_blocking_reader::NonBlockingReader;
+
+type CallbackFunction = fn(&mut WhichKeyFunctions);
+
+#[derive(Hash, PartialEq)]
+struct ModeAndKey {
+    key: Vec<u8>,
+    mode: String,
+}
+impl Eq for ModeAndKey {}
 
 pub struct PseudoTerminalBuilder {
     command: portable_pty::CommandBuilder,
-    callbacks: std::collections::HashMap<u8, fn(&mut PseudoTerminal)>,
+    callbacks: std::collections::HashMap<ModeAndKey, CallbackFunction>,
 }
 
 impl PseudoTerminalBuilder {
@@ -15,8 +24,14 @@ impl PseudoTerminalBuilder {
         }
     }
 
-    pub fn with_callback(mut self, key: u8, callback: fn(&mut PseudoTerminal)) -> Self {
-        self.callbacks.insert(key, callback);
+    pub fn with_callback(mut self, mode: &str, key: Vec<u8>, callback: CallbackFunction) -> Self {
+        self.callbacks.insert(
+            ModeAndKey {
+                key,
+                mode: mode.to_string(),
+            },
+            callback,
+        );
         self
     }
 
@@ -35,7 +50,6 @@ impl PseudoTerminalBuilder {
         let parser = vt100::Parser::new(rows, cols, 0);
 
         PseudoTerminal {
-            stdout: std::io::stdout(),
             master: pair.master,
             callbacks: self.callbacks,
             parser,
@@ -44,56 +58,69 @@ impl PseudoTerminalBuilder {
 }
 
 pub struct PseudoTerminal {
-    stdout: std::io::Stdout,
     master: Box<dyn portable_pty::MasterPty>,
-    callbacks: std::collections::HashMap<u8, fn(&mut PseudoTerminal)>,
+    callbacks: std::collections::HashMap<ModeAndKey, CallbackFunction>,
     parser: vt100::Parser,
 }
 
 impl PseudoTerminal {
     pub fn run(mut self) {
-        self.start();
+        crossterm::terminal::enable_raw_mode().unwrap();
+        std::io::stdout()
+            .write_all(ansi_escapes::ClearScreen.to_string().as_bytes())
+            .unwrap();
 
         let mut master_reader = NonBlockingReader::new(self.master.try_clone_reader().unwrap());
         let mut stdin_reader = NonBlockingReader::new(Box::new(std::io::stdin()));
+        
+        let mut which_key_functions = WhichKeyFunctions::new(Vec::new(), "root".to_string());
 
         while !stdin_reader.is_eof() && !master_reader.is_eof() {
-            for byte in stdin_reader.read_available() {
-                if self.callbacks.contains_key(&byte) {
-                    self.callbacks.get(&byte).unwrap()(&mut self);
-                } else {
-                    self.master.write_all(&[byte]).unwrap();
-                    self.master.flush().unwrap();
-                }
+            let data = stdin_reader.read_available();
+            if let Some(function) = self.callbacks.get(&ModeAndKey {
+                key: data.clone(),
+                mode: which_key_functions.mode.clone(),
+            }) {
+                which_key_functions.screen_content = self.parser.screen().clone().contents_formatted();
+                function(&mut which_key_functions);
+            } else {
+                self.master.write_all(&data).unwrap();
+                self.master.flush().unwrap();
             }
 
             let master_data = &master_reader.read_available()[..];
-            self.stdout.write_all(master_data).unwrap();
-            self.stdout.flush().unwrap();
+            std::io::stdout().write_all(master_data).unwrap();
+            std::io::stdout().flush().unwrap();
             self.parser.process(master_data);
         }
 
-        self.end();
+        WhichKeyFunctions::new(Vec::new(), String::new()).end();
+    }
+}
+
+pub struct WhichKeyFunctions {
+    screen_content: Vec<u8>,
+    mode: String,
+}
+impl WhichKeyFunctions {
+    fn new(screen_content: Vec<u8>, mode: String) -> Self {
+        WhichKeyFunctions { screen_content, mode }
     }
 
-    fn start(&mut self) {
-        crossterm::terminal::enable_raw_mode().unwrap();
-        crossterm::execute!(self.stdout, crossterm::terminal::EnterAlternateScreen).unwrap();
-    }
-
-    pub fn end(&mut self) {
+    pub fn end(&self) {
         crossterm::terminal::disable_raw_mode().unwrap();
-        crossterm::execute!(self.stdout, crossterm::terminal::LeaveAlternateScreen).unwrap();
         std::process::exit(0);
     }
 
-    pub fn redraw_screen(&mut self) {
-        self.stdout
+    pub fn redraw_screen(&self) {
+        std::io::stdout()
             .write_all(ansi_escapes::ClearScreen.to_string().as_bytes())
             .unwrap();
-        self.stdout
-            .write_all(&self.parser.screen().contents_formatted())
-            .unwrap();
-        self.stdout.flush().unwrap();
+        std::io::stdout().write_all(&self.screen_content).unwrap();
+        std::io::stdout().flush().unwrap();
+    }
+
+    pub fn set_mode(&mut self, mode: &str) {
+        self.mode = mode.to_owned();
     }
 }
