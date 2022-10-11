@@ -8,15 +8,12 @@ use crossterm::{
     terminal::size,
 };
 
-use crate::keybinding::KeyBinding;
-
 pub struct Window {
-    keybindings: Vec<KeyBinding>,
 }
 
 impl Window {
-    pub fn new(keybindings: Vec<KeyBinding>) -> Self {
-        Window { keybindings }
+    pub fn new() -> Self {
+        Window {}
     }
 
     pub fn draw_border(&self, height: u16, width: u16) {
@@ -56,11 +53,7 @@ impl Window {
     }
 
     fn get_max_length(&self) -> u8 {
-        self.keybindings
-            .iter()
-            .map(|keybinding| keybinding.length())
-            .max()
-            .unwrap()
+        0
     }
 }
 

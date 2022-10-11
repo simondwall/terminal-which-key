@@ -72,7 +72,7 @@ impl PseudoTerminal {
 
         let mut master_reader = NonBlockingReader::new(self.master.try_clone_reader().unwrap());
         let mut stdin_reader = NonBlockingReader::new(Box::new(std::io::stdin()));
-        
+
         let mut which_key_functions = WhichKeyFunctions::new(Vec::new(), "root".to_string());
 
         while !stdin_reader.is_eof() && !master_reader.is_eof() {
@@ -81,9 +81,10 @@ impl PseudoTerminal {
                 key: data.clone(),
                 mode: which_key_functions.mode.clone(),
             }) {
-                which_key_functions.screen_content = self.parser.screen().clone().contents_formatted();
+                which_key_functions.screen_content =
+                    self.parser.screen().clone().contents_formatted();
                 function(&mut which_key_functions);
-            } else {
+            } else if which_key_functions.mode == "root" {
                 self.master.write_all(&data).unwrap();
                 self.master.flush().unwrap();
             }
@@ -104,7 +105,10 @@ pub struct WhichKeyFunctions {
 }
 impl WhichKeyFunctions {
     fn new(screen_content: Vec<u8>, mode: String) -> Self {
-        WhichKeyFunctions { screen_content, mode }
+        WhichKeyFunctions {
+            screen_content,
+            mode,
+        }
     }
 
     pub fn end(&self) {
