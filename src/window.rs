@@ -8,12 +8,14 @@ use crossterm::{
     terminal::size,
 };
 
+use crate::config::FormatConfig;
+
 pub struct Window {
 }
 
 impl Window {
-    pub fn new() -> Self {
-        Window {}
+    pub fn new(config: crate::config::Config) -> Self {
+        Self {}
     }
 
     pub fn draw_border(&self, height: u16, width: u16) {
@@ -25,23 +27,23 @@ impl Window {
             MoveTo(cols / 2, rows / 2),
             MoveUp(height / 2),
             MoveLeft(width / 2),
-            Print("+"),
+            Print("┏"),
         )
         .unwrap();
         for _ in 2..width {
-            queue!(out, Print("-")).unwrap();
+            queue!(out, Print("━")).unwrap();
         }
-        queue!(out, Print("+")).unwrap();
+        queue!(out, Print("┓")).unwrap();
         for _ in 2..height {
-            queue!(out, MoveDown(1), MoveLeft(1), Print("|"));
+            queue!(out, MoveDown(1), MoveLeft(1), Print("┃"));
         }
-        queue!(out, MoveDown(1), MoveLeft(1), Print("+")).unwrap();
+        queue!(out, MoveDown(1), MoveLeft(1), Print("┛")).unwrap();
         for _ in 2..width {
-            queue!(out, MoveLeft(2), Print("-")).unwrap();
+            queue!(out, MoveLeft(2), Print("━")).unwrap();
         }
-        queue!(out, MoveLeft(2), Print("+")).unwrap();
+        queue!(out, MoveLeft(2), Print("┗")).unwrap();
         for _ in 2..height {
-            queue!(out, MoveUp(1), MoveLeft(1), Print("|"));
+            queue!(out, MoveUp(1), MoveLeft(1), Print("┃"));
         }
         queue!(out, RestorePosition).unwrap();
         out.flush();
@@ -54,12 +56,5 @@ impl Window {
 
     fn get_max_length(&self) -> u8 {
         0
-    }
-}
-
-impl Drop for Window {
-    fn drop(&mut self) {
-        // redraw replaced_region
-        // todo!()
     }
 }
