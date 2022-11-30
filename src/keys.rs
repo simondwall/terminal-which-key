@@ -1,4 +1,4 @@
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub struct Key {
     pub ctrl: bool,
     pub opt: bool,
@@ -107,29 +107,29 @@ impl Key {
             "Z" => Ok(Key {ctrl: false, opt: false, shift: true, symbol: Symbol::Z}),
 
             // TODO:
-            ")" => Ok(Key {ctrl: false, opt: false, shift: false, symbol: Symbol::Number0}),
-            "!" => Ok(Key {ctrl: false, opt: false, shift: false, symbol: Symbol::Number1}),
-            "@" => Ok(Key {ctrl: false, opt: false, shift: false, symbol: Symbol::Number2}),
-            "#" => Ok(Key {ctrl: false, opt: false, shift: false, symbol: Symbol::Number3}),
-            "$" => Ok(Key {ctrl: false, opt: false, shift: false, symbol: Symbol::Number4}),
-            "%" => Ok(Key {ctrl: false, opt: false, shift: false, symbol: Symbol::Number5}),
-            "^" => Ok(Key {ctrl: false, opt: false, shift: false, symbol: Symbol::Number6}),
-            "&" => Ok(Key {ctrl: false, opt: false, shift: false, symbol: Symbol::Number7}),
-            "*" => Ok(Key {ctrl: false, opt: false, shift: false, symbol: Symbol::Number8}),
-            "(" => Ok(Key {ctrl: false, opt: false, shift: false, symbol: Symbol::Number9}),
-            "<" => Ok(Key {ctrl: false, opt: false, shift: false, symbol: Symbol::Comma}),
-            ">" => Ok(Key {ctrl: false, opt: false, shift: false, symbol: Symbol::Dot}),
-            "?" => Ok(Key {ctrl: false, opt: false, shift: false, symbol: Symbol::Slash}),
-            "|" => Ok(Key {ctrl: false, opt: false, shift: false, symbol: Symbol::Backslash}),
-            "\"" => Ok(Key {ctrl: false, opt: false, shift: false, symbol: Symbol::Quote}),
-            ":" => Ok(Key {ctrl: false, opt: false, shift: false, symbol: Symbol::Semicolon}),
-            "{" => Ok(Key {ctrl: false, opt: false, shift: false, symbol: Symbol::LeftBracket}),
-            "}" => Ok(Key {ctrl: false, opt: false, shift: false, symbol: Symbol::RightBracket}),
-            "_" => Ok(Key {ctrl: false, opt: false, shift: false, symbol: Symbol::Minus}),
-            "+" => Ok(Key {ctrl: false, opt: false, shift: false, symbol: Symbol::Equal}),
-            "~" => Ok(Key {ctrl: false, opt: false, shift: false, symbol: Symbol::Grave}),
-            // "<Delete>" => Ok(Key {ctrl: false, opt: false, shift: false, symbol: Symbol::Delete}),
-            // "<Space>" => Ok(Key {ctrl: false, opt: false, shift: false, symbol: Symbol::Space}),
+            ")" => Ok(Key {ctrl: false, opt: false, shift: true, symbol: Symbol::Number0}),
+            "!" => Ok(Key {ctrl: false, opt: false, shift: true, symbol: Symbol::Number1}),
+            "@" => Ok(Key {ctrl: false, opt: false, shift: true, symbol: Symbol::Number2}),
+            "#" => Ok(Key {ctrl: false, opt: false, shift: true, symbol: Symbol::Number3}),
+            "$" => Ok(Key {ctrl: false, opt: false, shift: true, symbol: Symbol::Number4}),
+            "%" => Ok(Key {ctrl: false, opt: false, shift: true, symbol: Symbol::Number5}),
+            "^" => Ok(Key {ctrl: false, opt: false, shift: true, symbol: Symbol::Number6}),
+            "&" => Ok(Key {ctrl: false, opt: false, shift: true, symbol: Symbol::Number7}),
+            "*" => Ok(Key {ctrl: false, opt: false, shift: true, symbol: Symbol::Number8}),
+            "(" => Ok(Key {ctrl: false, opt: false, shift: true, symbol: Symbol::Number9}),
+            "<" => Ok(Key {ctrl: false, opt: false, shift: true, symbol: Symbol::Comma}),
+            ">" => Ok(Key {ctrl: false, opt: false, shift: true, symbol: Symbol::Dot}),
+            "?" => Ok(Key {ctrl: false, opt: false, shift: true, symbol: Symbol::Slash}),
+            "|" => Ok(Key {ctrl: false, opt: false, shift: true, symbol: Symbol::Backslash}),
+            "\"" => Ok(Key {ctrl: false, opt: false, shift: true, symbol: Symbol::Quote}),
+            ":" => Ok(Key {ctrl: false, opt: false, shift: true, symbol: Symbol::Semicolon}),
+            "{" => Ok(Key {ctrl: false, opt: false, shift: true, symbol: Symbol::LeftBracket}),
+            "}" => Ok(Key {ctrl: false, opt: false, shift: true, symbol: Symbol::RightBracket}),
+            "_" => Ok(Key {ctrl: false, opt: false, shift: true, symbol: Symbol::Minus}),
+            "+" => Ok(Key {ctrl: false, opt: false, shift: true, symbol: Symbol::Equal}),
+            "~" => Ok(Key {ctrl: false, opt: false, shift: true, symbol: Symbol::Grave}),
+            // "<S-Delete>" has the same byte as regular "<Delete>"
+            // "<S-Space>" has the same byte as regular "<Space>"
             "<S-Up>" => Ok(Key {ctrl: false, opt: false, shift: true, symbol: Symbol::UpArrow}),
             "<S-Down>" => Ok(Key {ctrl: false, opt: false, shift: true, symbol: Symbol::DownArrow}),
             "<S-Left>" => Ok(Key {ctrl: false, opt: false, shift: true, symbol: Symbol::LeftArrow}),
@@ -146,9 +146,9 @@ impl Key {
             "<S-F10>" => Ok(Key {ctrl: false, opt: false, shift: true, symbol: Symbol::F10}),
             "<S-F11>" => Ok(Key {ctrl: false, opt: false, shift: true, symbol: Symbol::F11}),
             "<S-F12>" => Ok(Key {ctrl: false, opt: false, shift: true, symbol: Symbol::F12}),
-            //TODO "<S-Tab>" => Ok(Key {ctrl: true, opt: false, shift: true, symbol: Symbol::I}),
-            // "<Esc>" => Ok(Key {ctrl: true, opt: false, shift: false, symbol: Symbol::LeftBracket}),
-            // "<Return>" => Ok(Key {ctrl: true, opt: false, shift: false, symbol: Symbol::M}),
+            "<S-Tab>" => Ok(Key {ctrl: false, opt: false, shift: true, symbol: Symbol::Tab}),
+            // "<S-Esc>" has the same byte as regular "<Esc>"
+            // "<S-Return>" has the same byte as regular "Return"
 
             "<C-a>" => Ok(Key {ctrl: true, opt: false, shift: false, symbol: Symbol::A}),
             "<C-b>" => Ok(Key {ctrl: true, opt: false, shift: false, symbol: Symbol::B}),
@@ -312,6 +312,8 @@ impl Key {
             "<C-A-Y>" => Ok(Key {ctrl: true, opt: true, shift: true, symbol: Symbol::Y}),
             "<C-A-Z>" => Ok(Key {ctrl: true, opt: true, shift: true, symbol: Symbol::Z}),
 
+            "<C-Space>" => Ok(Key {ctrl: true, opt: false, shift: false, symbol: Symbol::Space}),
+
             _ => Err(()),
         }
     }
@@ -319,18 +321,178 @@ impl Key {
     #[allow(dead_code)]
     pub fn from_slice(key: &[u8]) -> Result<Key, ()> {
         match key {
-            [1] => Ok(Key {
-                ctrl: true,
-                opt: false,
-                shift: false,
-                symbol: Symbol::A,
-            }),
+
+            [0x61] => Ok(Key {ctrl: false, opt: false, shift: false, symbol: Symbol::A}),
+            [0x62] => Ok(Key {ctrl: false, opt: false, shift: false, symbol: Symbol::B}),
+            [0x63] => Ok(Key {ctrl: false, opt: false, shift: false, symbol: Symbol::C}),
+            [0x64] => Ok(Key {ctrl: false, opt: false, shift: false, symbol: Symbol::D}),
+            [0x65] => Ok(Key {ctrl: false, opt: false, shift: false, symbol: Symbol::E}),
+            [0x66] => Ok(Key {ctrl: false, opt: false, shift: false, symbol: Symbol::F}),
+            [0x67] => Ok(Key {ctrl: false, opt: false, shift: false, symbol: Symbol::G}),
+            [0x68] => Ok(Key {ctrl: false, opt: false, shift: false, symbol: Symbol::H}),
+            [0x69] => Ok(Key {ctrl: false, opt: false, shift: false, symbol: Symbol::I}),
+            [0x6a] => Ok(Key {ctrl: false, opt: false, shift: false, symbol: Symbol::J}),
+            [0x6b] => Ok(Key {ctrl: false, opt: false, shift: false, symbol: Symbol::K}),
+            [0x6c] => Ok(Key {ctrl: false, opt: false, shift: false, symbol: Symbol::L}),
+            [0x6d] => Ok(Key {ctrl: false, opt: false, shift: false, symbol: Symbol::M}),
+            [0x6e] => Ok(Key {ctrl: false, opt: false, shift: false, symbol: Symbol::N}),
+            [0x6f] => Ok(Key {ctrl: false, opt: false, shift: false, symbol: Symbol::O}),
+            [0x70] => Ok(Key {ctrl: false, opt: false, shift: false, symbol: Symbol::P}),
+            [0x71] => Ok(Key {ctrl: false, opt: false, shift: false, symbol: Symbol::Q}),
+            [0x72] => Ok(Key {ctrl: false, opt: false, shift: false, symbol: Symbol::R}),
+            [0x73] => Ok(Key {ctrl: false, opt: false, shift: false, symbol: Symbol::S}),
+            [0x74] => Ok(Key {ctrl: false, opt: false, shift: false, symbol: Symbol::T}),
+            [0x75] => Ok(Key {ctrl: false, opt: false, shift: false, symbol: Symbol::U}),
+            [0x76] => Ok(Key {ctrl: false, opt: false, shift: false, symbol: Symbol::V}),
+            [0x77] => Ok(Key {ctrl: false, opt: false, shift: false, symbol: Symbol::W}),
+            [0x78] => Ok(Key {ctrl: false, opt: false, shift: false, symbol: Symbol::X}),
+            [0x79] => Ok(Key {ctrl: false, opt: false, shift: false, symbol: Symbol::Y}),
+            [0x7a] => Ok(Key {ctrl: false, opt: false, shift: false, symbol: Symbol::Z}),
+
+            [0x30] => Ok(Key { ctrl: false, opt: false, shift: false, symbol: Symbol::Number0 }),
+            [0x31] => Ok(Key { ctrl: false, opt: false, shift: false, symbol: Symbol::Number1 }),
+            [0x32] => Ok(Key { ctrl: false, opt: false, shift: false, symbol: Symbol::Number2 }),
+            [0x33] => Ok(Key { ctrl: false, opt: false, shift: false, symbol: Symbol::Number3 }),
+            [0x34] => Ok(Key { ctrl: false, opt: false, shift: false, symbol: Symbol::Number4 }),
+            [0x35] => Ok(Key { ctrl: false, opt: false, shift: false, symbol: Symbol::Number5 }),
+            [0x36] => Ok(Key { ctrl: false, opt: false, shift: false, symbol: Symbol::Number6 }),
+            [0x37] => Ok(Key { ctrl: false, opt: false, shift: false, symbol: Symbol::Number7 }),
+            [0x38] => Ok(Key { ctrl: false, opt: false, shift: false, symbol: Symbol::Number8 }),
+            [0x39] => Ok(Key { ctrl: false, opt: false, shift: false, symbol: Symbol::Number9 }),
+            [0x2c] => Ok(Key { ctrl: false, opt: false, shift: false, symbol: Symbol::Comma }),
+            [0x2e] => Ok(Key { ctrl: false, opt: false, shift: false, symbol: Symbol::Dot }),
+            [0x2f] => Ok(Key { ctrl: false, opt: false, shift: false, symbol: Symbol::Slash }),
+            [0x5c] => Ok(Key { ctrl: false, opt: false, shift: false, symbol: Symbol::Backslash }),
+            [0x27] => Ok(Key { ctrl: false, opt: false, shift: false, symbol: Symbol::Quote }),
+            [0x3b] => Ok(Key { ctrl: false, opt: false, shift: false, symbol: Symbol::Semicolon }),
+            [0x5b] => Ok(Key { ctrl: false, opt: false, shift: false, symbol: Symbol::LeftBracket }),
+            [0x5d] => Ok(Key { ctrl: false, opt: false, shift: false, symbol: Symbol::RightBracket }),
+            [0x2d] => Ok(Key { ctrl: false, opt: false, shift: false, symbol: Symbol::Minus }),
+            [0x3d] => Ok(Key { ctrl: false, opt: false, shift: false, symbol: Symbol::Equal }),
+            [0x60] => Ok(Key { ctrl: false, opt: false, shift: false, symbol: Symbol::Grave }),
+            [0x7f] => Ok(Key { ctrl: false, opt: false, shift: false, symbol: Symbol::Delete }),
+            [0x20] => Ok(Key { ctrl: false, opt: false, shift: false, symbol: Symbol::Space }),
+            [0x1b, 0x5b, 0x41] => Ok(Key { ctrl: false, opt: false, shift: false, symbol: Symbol::UpArrow }),
+            [0x1b, 0x5b, 0x42] => Ok(Key { ctrl: false, opt: false, shift: false, symbol: Symbol::DownArrow }),
+            [0x1b, 0x5b, 0x44] => Ok(Key { ctrl: false, opt: false, shift: false, symbol: Symbol::LeftArrow }),
+            [0x1b, 0x5b, 0x43] => Ok(Key { ctrl: false, opt: false, shift: false, symbol: Symbol::RightArrow }),
+            [0x1b, 0x4f, 0x50] => Ok(Key { ctrl: false, opt: false, shift: false, symbol: Symbol::F1 }),
+            [0x1b, 0x4f, 0x51] => Ok(Key { ctrl: false, opt: false, shift: false, symbol: Symbol::F2 }),
+            [0x1b, 0x4f, 0x52] => Ok(Key { ctrl: false, opt: false, shift: false, symbol: Symbol::F3 }),
+            [0x1b, 0x4f, 0x53] => Ok(Key { ctrl: false, opt: false, shift: false, symbol: Symbol::F4 }),
+            [0x1b, 0x5b, 0x31, 0x35, 0x7e] => Ok(Key { ctrl: false, opt: false, shift: false, symbol: Symbol::F5 }),
+            [0x1b, 0x5b, 0x31, 0x37, 0x7e] => Ok(Key { ctrl: false, opt: false, shift: false, symbol: Symbol::F6 }),
+            [0x1b, 0x5b, 0x31, 0x38, 0x71] => Ok(Key { ctrl: false, opt: false, shift: false, symbol: Symbol::F7 }),
+            [0x1b, 0x5b, 0x31, 0x39, 0x71] => Ok(Key { ctrl: false, opt: false, shift: false, symbol: Symbol::F8 }),
+            [0x1b, 0x5b, 0x32, 0x30, 0x71] => Ok(Key { ctrl: false, opt: false, shift: false, symbol: Symbol::F9 }),
+            [0x1b, 0x5b, 0x32, 0x31, 0x71] => Ok(Key { ctrl: false, opt: false, shift: false, symbol: Symbol::F10 }),
+            //[] => Ok(Key { ctrl: false, opt: false, shift: false, symbol: Symbol::F11 }),
+            [0x1b, 0x5b, 0x32, 0x34, 0x71] => Ok(Key { ctrl: false, opt: false, shift: false, symbol: Symbol::F12 }),
+            //[0x09] => Ok(Key { ctrl: false, opt: false, shift: false, symbol: Symbol::Tab }),
+
+            [0x01] => Ok(Key {ctrl: true, opt: false, shift: false, symbol: Symbol::A}),
+            [0x02] => Ok(Key {ctrl: true, opt: false, shift: false, symbol: Symbol::B}),
+            [0x03] => Ok(Key {ctrl: true, opt: false, shift: false, symbol: Symbol::C}),
+            [0x04] => Ok(Key {ctrl: true, opt: false, shift: false, symbol: Symbol::D}),
+            [0x05] => Ok(Key {ctrl: true, opt: false, shift: false, symbol: Symbol::E}),
+            [0x06] => Ok(Key {ctrl: true, opt: false, shift: false, symbol: Symbol::F}),
+            [0x07] => Ok(Key {ctrl: true, opt: false, shift: false, symbol: Symbol::G}),
+            [0x08] => Ok(Key {ctrl: true, opt: false, shift: false, symbol: Symbol::H}),
+            [0x09] => Ok(Key {ctrl: true, opt: false, shift: false, symbol: Symbol::I}),
+            [0x0a] => Ok(Key {ctrl: true, opt: false, shift: false, symbol: Symbol::J}),
+            [0x0b] => Ok(Key {ctrl: true, opt: false, shift: false, symbol: Symbol::K}),
+            [0x0c] => Ok(Key {ctrl: true, opt: false, shift: false, symbol: Symbol::L}),
+            [0x0d] => Ok(Key {ctrl: true, opt: false, shift: false, symbol: Symbol::M}),
+            [0x0e] => Ok(Key {ctrl: true, opt: false, shift: false, symbol: Symbol::N}),
+            [0x0f] => Ok(Key {ctrl: true, opt: false, shift: false, symbol: Symbol::O}),
+            [0x10] => Ok(Key {ctrl: true, opt: false, shift: false, symbol: Symbol::P}),
+            [0x11] => Ok(Key {ctrl: true, opt: false, shift: false, symbol: Symbol::Q}),
+            [0x12] => Ok(Key {ctrl: true, opt: false, shift: false, symbol: Symbol::R}),
+            [0x13] => Ok(Key {ctrl: true, opt: false, shift: false, symbol: Symbol::S}),
+            [0x14] => Ok(Key {ctrl: true, opt: false, shift: false, symbol: Symbol::T}),
+            [0x15] => Ok(Key {ctrl: true, opt: false, shift: false, symbol: Symbol::U}),
+            [0x16] => Ok(Key {ctrl: true, opt: false, shift: false, symbol: Symbol::V}),
+            [0x17] => Ok(Key {ctrl: true, opt: false, shift: false, symbol: Symbol::W}),
+            [0x18] => Ok(Key {ctrl: true, opt: false, shift: false, symbol: Symbol::X}),
+            [0x19] => Ok(Key {ctrl: true, opt: false, shift: false, symbol: Symbol::Y}),
+            [0x1a] => Ok(Key {ctrl: true, opt: false, shift: false, symbol: Symbol::Z}),
+
+            [0xc3, 0xa5] => Ok(Key { ctrl: false, opt: true, shift: false, symbol: Symbol::A }),
+            [0xe2, 0x88, 0xab] => Ok(Key { ctrl: false, opt: true, shift: false, symbol: Symbol::B }),
+            [0xc3, 0xa7] => Ok(Key { ctrl: false, opt: true, shift: false, symbol: Symbol::C }),
+            [0xe2, 0x88, 0x82] => Ok(Key { ctrl: false, opt: true, shift: false, symbol: Symbol::D }),
+            [0xc2, 0xb4] => Ok(Key { ctrl: false, opt: true, shift: false, symbol: Symbol::E }),
+            [0xc6, 0x92] => Ok(Key { ctrl: false, opt: true, shift: false, symbol: Symbol::F }),
+            [0xc2, 0xa9] => Ok(Key { ctrl: false, opt: true, shift: false, symbol: Symbol::G }),
+            [0xcb, 0x99] => Ok(Key {ctrl: false, opt: true, shift: false, symbol: Symbol::H}),
+            [0xcb, 0x86] => Ok(Key {ctrl: false, opt: true, shift: false, symbol: Symbol::I}),
+            [0xe2, 0x88, 0x86] => Ok(Key {ctrl: false, opt: true, shift: false, symbol: Symbol::J}),
+            [0xcb, 0x9a] => Ok(Key {ctrl: false, opt: true, shift: false, symbol: Symbol::K}),
+            [0xc2, 0xac] => Ok(Key {ctrl: false, opt: true, shift: false, symbol: Symbol::L}),
+            [0xc2, 0xb5] => Ok(Key {ctrl: false, opt: true, shift: false, symbol: Symbol::M}),
+            [0xcb, 0x9c] => Ok(Key {ctrl: false, opt: true, shift: false, symbol: Symbol::N}),
+            [0xc3, 0xb8] => Ok(Key {ctrl: false, opt: true, shift: false, symbol: Symbol::O}),
+            [0xcf, 0x80] => Ok(Key {ctrl: false, opt: true, shift: false, symbol: Symbol::P}),
+            [0xc5, 0x93] => Ok(Key {ctrl: false, opt: true, shift: false, symbol: Symbol::Q}),
+            [0xc2, 0xae] => Ok(Key {ctrl: false, opt: true, shift: false, symbol: Symbol::R}),
+            [0xc3, 0x9f] => Ok(Key {ctrl: false, opt: true, shift: false, symbol: Symbol::S}),
+            [0xe2, 0x80, 0xa0] => Ok(Key {ctrl: false, opt: true, shift: false, symbol: Symbol::T}),
+            [0xc2, 0xa8] => Ok(Key {ctrl: false, opt: true, shift: false, symbol: Symbol::U}),
+            [0xe2, 0x88, 0x9a] => Ok(Key {ctrl: false, opt: true, shift: false, symbol: Symbol::V}),
+            [0xe2, 0x88, 0x91] => Ok(Key {ctrl: false, opt: true, shift: false, symbol: Symbol::W}),
+            [0xe2, 0x89, 0x88] => Ok(Key {ctrl: false, opt: true, shift: false, symbol: Symbol::X}),
+            [0xc2, 0xa5] => Ok(Key {ctrl: false, opt: true, shift: false, symbol: Symbol::Y}),
+            [0xce, 0xa9] => Ok(Key {ctrl: false, opt: true, shift: false, symbol: Symbol::Z}),
+
+            [0x41] => Ok(Key {ctrl: false, opt: false, shift: true, symbol: Symbol::A}),
+            [0x42] => Ok(Key {ctrl: false, opt: false, shift: true, symbol: Symbol::B}),
+            [0x43] => Ok(Key {ctrl: false, opt: false, shift: true, symbol: Symbol::C}),
+            [0x44] => Ok(Key {ctrl: false, opt: false, shift: true, symbol: Symbol::D}),
+            [0x45] => Ok(Key {ctrl: false, opt: false, shift: true, symbol: Symbol::E}),
+            [0x46] => Ok(Key {ctrl: false, opt: false, shift: true, symbol: Symbol::F}),
+            [0x47] => Ok(Key {ctrl: false, opt: false, shift: true, symbol: Symbol::G}),
+            [0x48] => Ok(Key {ctrl: false, opt: false, shift: true, symbol: Symbol::H}),
+            [0x49] => Ok(Key {ctrl: false, opt: false, shift: true, symbol: Symbol::I}),
+            [0x4a] => Ok(Key {ctrl: false, opt: false, shift: true, symbol: Symbol::J}),
+            [0x4b] => Ok(Key {ctrl: false, opt: false, shift: true, symbol: Symbol::K}),
+            [0x4c] => Ok(Key {ctrl: false, opt: false, shift: true, symbol: Symbol::L}),
+            [0x4d] => Ok(Key {ctrl: false, opt: false, shift: true, symbol: Symbol::M}),
+            [0x4e] => Ok(Key {ctrl: false, opt: false, shift: true, symbol: Symbol::N}),
+            [0x4f] => Ok(Key {ctrl: false, opt: false, shift: true, symbol: Symbol::O}),
+            [0x50] => Ok(Key {ctrl: false, opt: false, shift: true, symbol: Symbol::P}),
+            [0x51] => Ok(Key {ctrl: false, opt: false, shift: true, symbol: Symbol::Q}),
+            [0x52] => Ok(Key {ctrl: false, opt: false, shift: true, symbol: Symbol::R}),
+            [0x53] => Ok(Key {ctrl: false, opt: false, shift: true, symbol: Symbol::S}),
+            [0x54] => Ok(Key {ctrl: false, opt: false, shift: true, symbol: Symbol::T}),
+            [0x55] => Ok(Key {ctrl: false, opt: false, shift: true, symbol: Symbol::U}),
+            [0x56] => Ok(Key {ctrl: false, opt: false, shift: true, symbol: Symbol::V}),
+            [0x57] => Ok(Key {ctrl: false, opt: false, shift: true, symbol: Symbol::W}),
+            [0x58] => Ok(Key {ctrl: false, opt: false, shift: true, symbol: Symbol::X}),
+            [0x59] => Ok(Key {ctrl: false, opt: false, shift: true, symbol: Symbol::Y}),
+            [0x5a] => Ok(Key {ctrl: false, opt: false, shift: true, symbol: Symbol::Z}),
+
+            //[0x2d] => Ok(Key {ctrl: false, opt: false, shift: false, symbol: Symbol::Minus}),
+            [0x7c] => Ok(Key {ctrl: false, opt: false, shift: true, symbol: Symbol::Backslash}),
+            [0x00] => Ok(Key {ctrl: true, opt: false, shift: false, symbol: Symbol::Space}),
+            [0x1b] => Ok(Key {ctrl: true, opt: false, shift: false, symbol: Symbol::LeftBracket}),
             _ => Err(()),
         }
     }
 }
 
-#[derive(Debug, PartialEq, Eq)]
+impl ToString for Key {
+    fn to_string(&self) -> String {
+        let ctrl = if self.ctrl {"C-"} else {""};
+        let opt = if self.opt {"O-"} else {""};
+        let shift = if self.shift && !self.symbol.is_print_char() {"S-"} else {""};
+        let open = if self.ctrl || self.opt || self.ctrl {"<"} else {""};
+        let close = if self.ctrl || self.opt || self.ctrl {">"} else {""};
+
+        return format!("{open}{ctrl}{opt}{shift}{}{close}", self.symbol).to_owned()
+    }
+}
+
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub enum Symbol {
     A,
     B,
@@ -397,4 +559,78 @@ pub enum Symbol {
     F10,
     F11,
     F12,
+    Tab,
+}
+
+impl Symbol {
+    fn is_print_char(&self) -> bool {
+        match self {
+            Symbol::A | Symbol::B | Symbol::C | Symbol::D | Symbol::E | Symbol::F | Symbol::G | Symbol::H | Symbol::I |
+                Symbol::J | Symbol::K | Symbol::L | Symbol::M | Symbol::N | Symbol::O | Symbol::P | Symbol::Q | Symbol::R |
+                Symbol::S | Symbol::T | Symbol::U | Symbol::V | Symbol::W | Symbol::X | Symbol::Y | Symbol::Z | Symbol::Number0 |
+                Symbol::Number1 | Symbol::Number2 | Symbol::Number3 | Symbol::Number4 | Symbol::Number5 | Symbol::Number6 | Symbol::Number7 |
+                Symbol::Number8 | Symbol::Number9 | Symbol::Comma | Symbol::Dot | Symbol::Slash | Symbol::Backslash | Symbol::Quote |
+                Symbol::Semicolon | Symbol::LeftBracket | Symbol::RightBracket | Symbol::Minus | Symbol::Equal | Symbol::Grave => true,
+
+            Symbol::Delete | Symbol::Space | Symbol::UpArrow | Symbol::DownArrow | Symbol::LeftArrow | Symbol::RightArrow | Symbol::F1 |
+                Symbol::F2 | Symbol::F3 | Symbol::F4 | Symbol::F5 | Symbol::F6 | Symbol::F7 | Symbol::F8 | Symbol::F9 | Symbol::F10 | 
+                Symbol::F11 | Symbol::F12 | Symbol::Tab => false
+        }
+    }
+}
+
+impl std::fmt::Display for Symbol {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        if f.alternate() {
+            match self {
+                Symbol::Number0 => write!(f, ")"),
+                Symbol::Number1 => write!(f, "!"),
+                Symbol::Number2 => write!(f, "@"),
+                Symbol::Number3 => write!(f, "#"),
+                Symbol::Number4 => write!(f, "$"),
+                Symbol::Number5 => write!(f, "%"),
+                Symbol::Number6 => write!(f, "^"),
+                Symbol::Number7 => write!(f, "&"),
+                Symbol::Number8 => write!(f, "*"),
+                Symbol::Number9 => write!(f, "("),
+                Symbol::Comma => write!(f, "<"),
+                Symbol::Dot => write!(f, ">"),
+                Symbol::Slash => write!(f, "?"),
+                Symbol::Backslash => write!(f, "|"),
+                Symbol::Quote => write!(f, r#"""#),
+                Symbol::Semicolon => write!(f, ":"),
+                Symbol::LeftBracket => write!(f, "{{"),
+                Symbol::RightBracket => write!(f, "}}"),
+                Symbol::Minus => write!(f, "_"),
+                Symbol::Equal => write!(f, "+"),
+                Symbol::Grave => write!(f, "~"),
+                _ => write!(f, "{:?}", self)
+            }
+        } else {
+            match self {
+                Symbol::Number0 => write!(f, "0"),
+                Symbol::Number1 => write!(f, "1"),
+                Symbol::Number2 => write!(f, "2"),
+                Symbol::Number3 => write!(f, "3"),
+                Symbol::Number4 => write!(f, "4"),
+                Symbol::Number5 => write!(f, "5"),
+                Symbol::Number6 => write!(f, "6"),
+                Symbol::Number7 => write!(f, "7"),
+                Symbol::Number8 => write!(f, "8"),
+                Symbol::Number9 => write!(f, "9"),
+                Symbol::Comma => write!(f, ","),
+                Symbol::Dot => write!(f, "."),
+                Symbol::Slash => write!(f, "/"),
+                Symbol::Backslash => write!(f, r"\"),
+                Symbol::Quote => write!(f, "'"),
+                Symbol::Semicolon => write!(f, ";"),
+                Symbol::LeftBracket => write!(f, "["),
+                Symbol::RightBracket => write!(f, "]"),
+                Symbol::Minus => write!(f, "-"),
+                Symbol::Equal => write!(f, "="),
+                Symbol::Grave => write!(f, "`"),
+                _ => write!(f, "{}", format!("{:?}", self).to_ascii_lowercase())
+            }
+        }
+    }
 }

@@ -1,6 +1,6 @@
 twk.set_config(
     twk.config:new(
-        twk.menu:new("<C-A>", "menu")
+        twk.menu:new("<C-a>", "menu")
         :with_description("This is just for testing")
         :with_condition(
             function()
@@ -34,44 +34,5 @@ twk.set_config(
             )
         ),
         "/opt/homebrew/bin/fish"
-    )
-    :with_format(
-        twk.format:new()
-        :border(
-            twk.border:new()
-            :with_top_left_corner("+")
-            :with_top_right_corner("+")
-            :with_bottom_left_corner("+")
-            :with_bottom_right_corner("+")
-            :with_top_edge("-")
-            :with_bottom_edge("-")
-            :with_left_edge("|")
-            :with_right_edge("|")
-        )
-        :key(
-            twk.template:new()
-            :color("#28f68b")
-            :text("[")
-            :placeholder("key")
-            :text("]")
-            :color("normal")
-        )
-        :arrow(
-            twk.template:new()
-            :text(">=>")
-        )
-        :name(
-            twk.template:new()
-            :evaluated_text(
-                function()
-                    return "current Time: " .. os.date()
-                end
-            )
-            :placeholder("name")
-        )
-        :menu(
-            twk.template:new()
-            :text("[...]")
-        )
     )
 )
