@@ -12,10 +12,11 @@ When finished it should be similar to other which-key implementations in editors
 - [x] Disallow typing unused character when in menu
 - [x] Remove Formatting
 - [x] Add window displaying
-- [ ] Add loading config from correct location
-- [ ] Fix wrong "capitalization" on non-letter characters (e.g. currently "\" instead of "|")
+- [x] Add loading config from correct location
+- [x] Fix wrong "capitalization" on non-letter characters (e.g. currently "\" instead of "|")
 - [ ] Fix resizing
 - [ ] Fix transparent window
+- [ ] Fix Staying in current working directory
 - [ ] Add more keys
 - [ ] Add documentation
 - [ ] Add example configs

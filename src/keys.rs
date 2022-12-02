@@ -488,7 +488,11 @@ impl ToString for Key {
         let open = if self.ctrl || self.opt || self.ctrl {"<"} else {""};
         let close = if self.ctrl || self.opt || self.ctrl {">"} else {""};
 
-        return format!("{open}{ctrl}{opt}{shift}{}{close}", self.symbol).to_owned()
+        if self.shift {
+            format!("{open}{ctrl}{opt}{shift}{:#}{close}", self.symbol).to_owned()
+        } else {
+            format!("{open}{ctrl}{opt}{shift}{}{close}", self.symbol).to_owned()
+        }
     }
 }
 
