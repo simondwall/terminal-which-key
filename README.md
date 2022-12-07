@@ -13,7 +13,7 @@ When finished it should be similar to other which-key implementations in editors
 - [x] Remove Formatting
 - [x] Add window displaying
 - [x] Add loading config from correct location
-- [x] Fix wrong "capitalization" on non-letter characters (e.g. currently "\" instead of "|")
+- [x] Fix wrong "capitalization" on non-letter characters (e.g. currently "\\" instead of "|")
 - [ ] Fix resizing
 - [ ] Fix transparent window
 - [ ] Fix Staying in current working directory
@@ -21,26 +21,27 @@ When finished it should be similar to other which-key implementations in editors
 - [ ] Add documentation
 - [ ] Add example configs
 
-# Roadmap
+# Possible Roadmap
 
-## Version 0.1.1
+## Version 0.1.1 (Most likely)
 
 - [ ] Use graphemes for counting instead of chars
-- [ ] Remove all unwraps
+- [ ] Make more stable (Remove unwraps)
 - [ ] Port lua config builder to rust
 - [ ] Check lua config builder values
 
-## Version 0.2.0
+## Version 0.2.0 (Likely)
 
 - [ ] Add condition support
 - [ ] Add Format Options (Theming etc.)
 - [ ] Add Miette for Error messages
 - [ ] Add Clap?
 
-## Version 0.3.0
+## Version 0.3.0 (Unlikely)
 
 - [ ] Add kitty graphics protocol support
 - [ ] Add kitty keyboard protocol support
 - [ ] Add different terminal support (Mostly keyboard support)
 - [ ] Add different keyboard layout support (e.g. ISO)
 - [ ] Add query capabilities (e.g. get_current_menu_name)
+- [ ] Add windows support

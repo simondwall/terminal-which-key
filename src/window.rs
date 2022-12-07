@@ -67,29 +67,45 @@ impl<'a> Window {
     fn draw_border(&self, height: u16, width: u16) {
         let (cols, rows) = size().unwrap();
         let mut out = stdout();
+
         queue!(
             out,
             SavePosition,
             MoveTo(cols / 2, rows / 2),
             MoveUp(height / 2),
             MoveLeft(width / 2),
-            Print("┏"),
         )
         .unwrap();
-        for _ in 2..width {
-            queue!(out, Print("━")).unwrap();
-        }
-        queue!(out, Print("┓")).unwrap();
-        for _ in 2..height {
-            queue!(out, MoveDown(1), MoveLeft(1), Print("┃"));
-        }
-        queue!(out, MoveDown(1), MoveLeft(1), Print("┛")).unwrap();
-        for _ in 2..width {
-            queue!(out, MoveLeft(2), Print("━")).unwrap();
-        }
-        queue!(out, MoveLeft(2), Print("┗")).unwrap();
-        for _ in 2..height {
-            queue!(out, MoveUp(1), MoveLeft(1), Print("┃"));
+
+        for y in 1..=height {
+            for x in 1..=width {
+                if x == 1 {
+
+                    if y == 1 {
+                        queue!(out, Print("┏")).unwrap();
+                    } else if y == height {
+                        queue!(out, Print("┗")).unwrap();
+                    } else {
+                        queue!(out, Print("┃")).unwrap();
+                    }
+                } else if x == width {
+
+                    if y == 1 {
+                        queue!(out, Print("┓"), MoveDown(1), MoveLeft(width)).unwrap();
+                    } else if y == height {
+                        queue!(out, Print("┛")).unwrap();
+                    } else {
+                        queue!(out, Print("┃"), MoveDown(1), MoveLeft(width)).unwrap();
+                    }
+                } else {
+
+                    if y == 1 || y == height {
+                        queue!(out, Print("━")).unwrap();
+                    } else {
+                        queue!(out, Print(" ")).unwrap();
+                    }
+                }
+            }
         }
         queue!(out, RestorePosition).unwrap();
         out.flush();
