@@ -26,8 +26,10 @@ impl PseudoTerminal {
                 pixel_height: 0,
             })
             .unwrap();
+        let mut command = CommandBuilder::new(&config.shell_path);
+        command.cwd(std::env::current_dir().unwrap());
         pair.slave
-            .spawn_command(CommandBuilder::new(&config.shell_path))
+            .spawn_command(command)
             .unwrap();
         let parser = vt100::Parser::new(rows, cols, 0);
 
@@ -38,7 +40,7 @@ impl PseudoTerminal {
         }
     }
 
-    pub fn run(mut self) {
+    pub fn run(self) {
         crossterm::terminal::enable_raw_mode().unwrap();
         std::io::stdout()
             .write_all(ansi_escapes::ClearScreen.to_string().as_bytes())
@@ -56,6 +58,20 @@ impl PseudoTerminal {
         };
         let mut current_menu = &root_menu;
         let mut screen = self.parser.screen().clone().contents_formatted();
+
+        let mut master_writer = self.master.try_clone_writer().unwrap();
+        let parser = std::sync::Arc::new(std::sync::Mutex::new(self.parser));
+
+        let winch_parser = parser.clone();
+        let mut winch_stream = tokio::signal::unix::signal(tokio::signal::unix::SignalKind::window_change()).unwrap();
+        tokio::spawn(async move {
+            loop {
+                winch_stream.recv().await;
+                let (cols, rows) = crossterm::terminal::size().unwrap();
+                self.master.resize(portable_pty::PtySize { rows, cols, pixel_width: 0, pixel_height: 0 }).unwrap();
+                winch_parser.lock().unwrap().set_size(rows, cols);
+            }
+        });
 
         while !stdin_reader.is_eof() && !master_reader.is_eof() {
             let data = stdin_reader.read_available();
@@ -76,7 +92,7 @@ impl PseudoTerminal {
                 {
                     match child {
                         Child::Menu(menu) => {
-                            screen = self.parser.screen().clone().contents_formatted();
+                            screen = parser.lock().unwrap().screen().clone().contents_formatted();
                             Self::redraw_screen(&screen);
                             current_menu = menu;
                             Window::new(&current_menu).draw();
@@ -91,18 +107,18 @@ impl PseudoTerminal {
                         }
                     }
                 } else if current_menu.name == "__root" {
-                    self.master.write_all(&data).unwrap();
-                    self.master.flush().unwrap();
+                    master_writer.write_all(&data).unwrap();
+                    master_writer.flush().unwrap();
                 }
             } else if current_menu.name == "__root" {
-                self.master.write_all(&data).unwrap();
-                self.master.flush().unwrap();
+                master_writer.write_all(&data).unwrap();
+                master_writer.flush().unwrap();
             }
 
             let master_data = &master_reader.read_available()[..];
             std::io::stdout().write_all(master_data).unwrap();
             std::io::stdout().flush().unwrap();
-            self.parser.process(master_data);
+            parser.lock().unwrap().process(master_data);
         }
 
         crossterm::terminal::disable_raw_mode().unwrap();
@@ -116,10 +132,5 @@ impl PseudoTerminal {
             .unwrap();
         std::io::stdout().write_all(&screen_content).unwrap();
         std::io::stdout().flush().unwrap();
-    }
-
-    #[allow(dead_code)]
-    fn update_size(&self) {
-        todo!();
     }
 }

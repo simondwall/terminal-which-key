@@ -13,10 +13,9 @@ When finished it should be similar to other which-key implementations in editors
 - [x] Remove Formatting
 - [x] Add window displaying
 - [x] Add loading config from correct location
-- [x] Fix wrong "capitalization" on non-letter characters (e.g. currently "\\" instead of "|")
-- [ ] Fix resizing
-- [ ] Fix transparent window
-- [ ] Fix Staying in current working directory
+- [x] Fix wrong "capitalization" (e.g. currently "\\" instead of "|")
+- [x] Fix resizing
+- [x] Fix transparent window
 - [ ] Add more keys
 - [ ] Add documentation
 - [ ] Add example configs
