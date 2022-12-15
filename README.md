@@ -16,6 +16,7 @@ When finished it should be similar to other which-key implementations in editors
 - [x] Fix wrong "capitalization" (e.g. currently "\\" instead of "|")
 - [x] Fix resizing
 - [x] Fix transparent window
+- [ ] Add twk.write
 - [ ] Add more keys
 - [ ] Add documentation
 - [ ] Add example configs
@@ -24,6 +25,7 @@ When finished it should be similar to other which-key implementations in editors
 
 ## Version 0.1.1 (Most likely)
 
+- [ ] Major refactor
 - [ ] Use graphemes for counting instead of chars
 - [ ] Make more stable (Remove unwraps)
 - [ ] Port lua config builder to rust

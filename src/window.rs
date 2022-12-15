@@ -7,7 +7,7 @@ use std::{
 use crossterm::{
     cursor::{MoveDown, MoveLeft, MoveRight, MoveTo, MoveUp, RestorePosition, SavePosition},
     execute, queue,
-    style::Print,
+    style::{Print, Color, SetForegroundColor, ResetColor},
     terminal::size,
 };
 
@@ -71,6 +71,7 @@ impl<'a> Window {
         queue!(
             out,
             SavePosition,
+            SetForegroundColor(Color::Blue),
             MoveTo(cols / 2, rows / 2),
             MoveUp(height / 2),
             MoveLeft(width / 2),
@@ -107,7 +108,7 @@ impl<'a> Window {
                 }
             }
         }
-        queue!(out, RestorePosition).unwrap();
+        queue!(out, ResetColor, RestorePosition).unwrap();
         out.flush();
     }
 
