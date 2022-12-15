@@ -16,8 +16,8 @@ When finished it should be similar to other which-key implementations in editors
 - [x] Fix wrong "capitalization" (e.g. currently "\\" instead of "|")
 - [x] Fix resizing
 - [x] Fix transparent window
+- [ ] Move to termion for keys instead of own implementation
 - [ ] Add twk.write
-- [ ] Add more keys
 - [ ] Add documentation
 - [ ] Add example configs
 
