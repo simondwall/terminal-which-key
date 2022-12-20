@@ -55,7 +55,7 @@ impl<'lua> FromLua<'lua> for MenuConfig<'lua> {
     fn from_lua(lua_value: Value<'lua>, lua: &'lua Lua) -> Result<Self> {
         let table: Table = lua.unpack(lua_value)?;
         let key_string: String = table.get("key")?;
-        let key = Key::from_str(&key_string).unwrap();
+        let key = Key::from_str(&key_string).expect(format!("{}", key_string).as_str());
         let name = table.get("name")?;
         let children = table.get("children")?;
         let condition = table.get("condition").unwrap_or(None);
@@ -98,13 +98,19 @@ impl<'lua> FromLua<'lua> for KeyConfig<'lua> {
     }
 }
 
-pub fn load_config_from_file(path: &str) -> Result<Config<'static>> {
+pub fn load_config_from_file(path: &str, mut master_writer: Box<dyn std::io::Write + Send>) -> Result<Config<'static>> {
     let lua_twk = include_str!("config.lua");
     let lua_config = std::fs::read(path).expect(&format!("Could not read {path}!"));
 
     let lua = Lua::new().into_static();
 
+    let write = lua.create_function_mut(move |_, string: String| {
+        master_writer.write_all(string.as_bytes()).unwrap();
+        Ok(())
+    }).unwrap();
+
     let twk: Table = lua.load(lua_twk).call(()).unwrap();
+    twk.set("write", write).unwrap();
     lua.globals().set("twk", twk).unwrap();
 
     lua.load(&lua_config).call::<_, ()>(()).unwrap();

@@ -3,7 +3,7 @@ use std::io::Write;
 use portable_pty::CommandBuilder;
 
 use crate::{
-    config::{Child, Config, MenuConfig},
+    config::{Child, Config, MenuConfig, load_config_from_file},
     keys::{Key, Symbol},
     non_blocking_reader::NonBlockingReader, window::Window,
 };
@@ -15,7 +15,7 @@ pub struct PseudoTerminal {
 }
 
 impl PseudoTerminal {
-    pub fn new(config: Config<'static>) -> Self {
+    pub fn new(config_path: &str) -> Self {
         let (cols, rows) = crossterm::terminal::size().unwrap_or((80, 24));
         let pair = portable_pty::native_pty_system()
             .openpty(portable_pty::PtySize {
@@ -26,6 +26,9 @@ impl PseudoTerminal {
                 pixel_height: 0,
             })
             .unwrap();
+
+        let config = load_config_from_file(config_path, pair.master.try_clone_writer().unwrap()).unwrap();
+
         let mut command = CommandBuilder::new(&config.shell_path);
         command.cwd(std::env::current_dir().unwrap());
         pair.slave
