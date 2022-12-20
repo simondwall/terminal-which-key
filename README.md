@@ -16,7 +16,7 @@ When finished it should be similar to other which-key implementations in editors
 - [x] Fix wrong "capitalization" (e.g. currently "\\" instead of "|")
 - [x] Fix resizing
 - [x] Fix transparent window
-- [ ] Move to termion for keys instead of own implementation
+- [x] Move to termion for keys instead of own implementation
 - [ ] Add twk.write
 - [ ] Add documentation
 - [ ] Add example configs
@@ -33,6 +33,7 @@ When finished it should be similar to other which-key implementations in editors
 
 ## Version 0.2.0 (Likely)
 
+- [ ] Add more Keys (e.g. Umlaute)
 - [ ] Add condition support
 - [ ] Add Format Options (Theming etc.)
 - [ ] Add Miette for Error messages
@@ -42,7 +43,5 @@ When finished it should be similar to other which-key implementations in editors
 
 - [ ] Add kitty graphics protocol support
 - [ ] Add kitty keyboard protocol support
-- [ ] Add different terminal support (Mostly keyboard support)
-- [ ] Add different keyboard layout support (e.g. ISO)
 - [ ] Add query capabilities (e.g. get_current_menu_name)
 - [ ] Add windows support
