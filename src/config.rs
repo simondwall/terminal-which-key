@@ -1,6 +1,8 @@
 use mlua::{FromLua, Function, Lua, Result, Table, Value};
 
-use crate::keys::Key;
+use termion::event::Key;
+
+use crate::keys::NewFromString;
 
 #[derive(Debug)]
 pub struct Config<'lua> {
@@ -55,7 +57,7 @@ impl<'lua> FromLua<'lua> for MenuConfig<'lua> {
     fn from_lua(lua_value: Value<'lua>, lua: &'lua Lua) -> Result<Self> {
         let table: Table = lua.unpack(lua_value)?;
         let key_string: String = table.get("key")?;
-        let key = Key::from_str(&key_string).unwrap();
+        let key = Key::new_from_string(&key_string);
         let name = table.get("name")?;
         let children = table.get("children")?;
         let condition = table.get("condition").unwrap_or(None);
@@ -83,7 +85,7 @@ impl<'lua> FromLua<'lua> for KeyConfig<'lua> {
     fn from_lua(lua_value: Value<'lua>, lua: &'lua Lua) -> Result<Self> {
         let table: Table = lua.unpack(lua_value)?;
         let key_string: String = table.get("key")?;
-        let key = Key::from_str(&key_string).unwrap();
+        let key = Key::new_from_string(&key_string);
         let name = table.get("name")?;
         let action = table.get("action")?;
         let condition = table.get("condition").unwrap_or(None);
