@@ -11,7 +11,7 @@ use crossterm::{
     terminal::size,
 };
 
-use crate::config::{Child, MenuConfig};
+use crate::{keys::Display, config::{Child, MenuConfig}};
 
 pub struct Window {
     labels: Vec<String>,
@@ -26,10 +26,10 @@ impl<'a> Window {
             .iter()
             .map(|child| match child {
                 Child::Menu(m) => {
-                    format!("{key} -> {name}[+]", key = m.key.to_string(), name = m.name)
+                    format!("{key} -> {name}[+]", key = m.key.display(), name = m.name)
                 }
                 Child::Action(a) => {
-                    format!("{key} -> {name}", key = a.key.to_string(), name = a.name)
+                    format!("{key} -> {name}", key = a.key.display(), name = a.name)
                 }
             })
             .collect();
