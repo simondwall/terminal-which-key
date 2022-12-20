@@ -17,7 +17,6 @@ When finished it should be similar to other which-key implementations in editors
 - [x] Fix resizing
 - [x] Fix transparent window
 - [x] Move to termion for keys instead of own implementation
-- [ ] Add more Keys (e.g. Symbols, Numbers, Umlaute)
 - [ ] Add twk.write
 - [ ] Add documentation
 - [ ] Add example configs
@@ -34,6 +33,7 @@ When finished it should be similar to other which-key implementations in editors
 
 ## Version 0.2.0 (Likely)
 
+- [ ] Add more Keys (e.g. Umlaute)
 - [ ] Add condition support
 - [ ] Add Format Options (Theming etc.)
 - [ ] Add Miette for Error messages
