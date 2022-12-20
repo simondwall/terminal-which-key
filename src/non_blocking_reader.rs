@@ -1,4 +1,4 @@
-use std::io::{Read, stdin};
+use std::io::{stdin, Read};
 
 use futures::executor::block_on;
 use tokio::{
