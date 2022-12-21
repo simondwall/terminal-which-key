@@ -10,7 +10,7 @@
 - [x] Fix resizing
 - [x] Fix transparent window
 - [x] Add twk.write
-- [ ] Add documentation
+- [x] Add documentation
 - [ ] Add example configs
 
 # Possible Roadmap
