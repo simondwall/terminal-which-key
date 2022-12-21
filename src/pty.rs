@@ -3,10 +3,12 @@ use std::io::Write;
 use portable_pty::CommandBuilder;
 
 use crate::{
-    config::{Child, Config, MenuConfig},
-    keys::{Key, Symbol},
-    non_blocking_reader::NonBlockingReader, window::Window,
+    config::{load_config_from_file, Child, Config, MenuConfig},
+    non_blocking_reader::{NonBlockingEventAndRawReader, NonBlockingReader},
+    window::Window,
 };
+
+use termion::event::{Event::Key as EventKey, Key};
 
 pub struct PseudoTerminal {
     master: Box<dyn portable_pty::MasterPty + Send>,
@@ -15,7 +17,7 @@ pub struct PseudoTerminal {
 }
 
 impl PseudoTerminal {
-    pub fn new(config: Config<'static>) -> Self {
+    pub fn new(config_path: &str) -> Self {
         let (cols, rows) = crossterm::terminal::size().unwrap_or((80, 24));
         let pair = portable_pty::native_pty_system()
             .openpty(portable_pty::PtySize {
@@ -26,11 +28,13 @@ impl PseudoTerminal {
                 pixel_height: 0,
             })
             .unwrap();
+
+        let config =
+            load_config_from_file(config_path, pair.master.try_clone_writer().unwrap()).unwrap();
+
         let mut command = CommandBuilder::new(&config.shell_path);
         command.cwd(std::env::current_dir().unwrap());
-        pair.slave
-            .spawn_command(command)
-            .unwrap();
+        pair.slave.spawn_command(command).unwrap();
         let parser = vt100::Parser::new(rows, cols, 0);
 
         Self {
@@ -47,10 +51,10 @@ impl PseudoTerminal {
             .unwrap();
 
         let mut master_reader = NonBlockingReader::new(self.master.try_clone_reader().unwrap());
-        let mut stdin_reader = NonBlockingReader::new(Box::new(std::io::stdin()));
+        let mut stdin_reader = NonBlockingEventAndRawReader::new();
 
         let root_menu: MenuConfig = MenuConfig {
-            key: Key {ctrl: true, opt: false, shift: false, symbol: Symbol::LeftBracket},
+            key: Key::Esc,
             name: "__root".to_string(),
             children: vec![Child::Menu(self.config.menu_config)],
             condition: None,
@@ -63,12 +67,20 @@ impl PseudoTerminal {
         let parser = std::sync::Arc::new(std::sync::Mutex::new(self.parser));
 
         let winch_parser = parser.clone();
-        let mut winch_stream = tokio::signal::unix::signal(tokio::signal::unix::SignalKind::window_change()).unwrap();
+        let mut winch_stream =
+            tokio::signal::unix::signal(tokio::signal::unix::SignalKind::window_change()).unwrap();
         tokio::spawn(async move {
             loop {
                 winch_stream.recv().await;
                 let (cols, rows) = crossterm::terminal::size().unwrap();
-                self.master.resize(portable_pty::PtySize { rows, cols, pixel_width: 0, pixel_height: 0 }).unwrap();
+                self.master
+                    .resize(portable_pty::PtySize {
+                        rows,
+                        cols,
+                        pixel_width: 0,
+                        pixel_height: 0,
+                    })
+                    .unwrap();
                 winch_parser.lock().unwrap().set_size(rows, cols);
             }
         });
@@ -76,43 +88,45 @@ impl PseudoTerminal {
         while !stdin_reader.is_eof() && !master_reader.is_eof() {
             let data = stdin_reader.read_available();
 
-            if let Ok(key) = Key::from_slice(&data) {
-                if &current_menu.name != "__root" && key == Key::from_str("<Esc>").unwrap() {
-                    current_menu = &root_menu;
-                    Self::redraw_screen(&screen);
-                }
-                else if let Some(child) = current_menu
-                    .children
-                    .iter()
-                    .filter(|c| match c {
-                        Child::Menu(m) => m.key == key,
-                        Child::Action(a) => a.key == key,
-                    })
-                    .last()
-                {
-                    match child {
-                        Child::Menu(menu) => {
-                            screen = parser.lock().unwrap().screen().clone().contents_formatted();
-                            Self::redraw_screen(&screen);
-                            current_menu = menu;
-                            Window::new(&current_menu).draw();
+            for (event, bytes) in data {
+                if let EventKey(key) = event {
+                    if &current_menu.name != "__root" && key == Key::Esc {
+                        current_menu = &root_menu;
+                        Self::redraw_screen(&screen);
+                    } else if let Some(child) = current_menu
+                        .children
+                        .iter()
+                        .filter(|c| match c {
+                            Child::Menu(m) => m.key == key,
+                            Child::Action(a) => a.key == key,
+                        })
+                        .last()
+                    {
+                        match child {
+                            Child::Menu(menu) => {
+                                screen =
+                                    parser.lock().unwrap().screen().clone().contents_formatted();
+                                Self::redraw_screen(&screen);
+                                current_menu = menu;
+                                Window::new(&current_menu).draw();
+                            }
+                            Child::Action(action) => {
+                                action
+                                    .action
+                                    .call::<_, ()>(())
+                                    .expect("Lua function threw an error");
+                                current_menu = &root_menu;
+                                Self::redraw_screen(&screen);
+                            }
                         }
-                        Child::Action(action) => {
-                            action
-                                .action
-                                .call::<_, ()>(())
-                                .expect("Lua function threw an error");
-                            current_menu = &root_menu;
-                            Self::redraw_screen(&screen);
-                        }
+                    } else if current_menu.name == "__root" {
+                        master_writer.write_all(&bytes).unwrap();
+                        master_writer.flush().unwrap();
                     }
                 } else if current_menu.name == "__root" {
-                    master_writer.write_all(&data).unwrap();
+                    master_writer.write_all(&bytes).unwrap();
                     master_writer.flush().unwrap();
                 }
-            } else if current_menu.name == "__root" {
-                master_writer.write_all(&data).unwrap();
-                master_writer.flush().unwrap();
             }
 
             let master_data = &master_reader.read_available()[..];

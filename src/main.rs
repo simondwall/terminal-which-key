@@ -9,9 +9,9 @@ async fn main() -> Result<(), std::io::Error> {
     let mut command = portable_pty::CommandBuilder::new("fish");
     command.cwd(std::env::current_dir().unwrap());
 
-    let config = config::load_config_from_file(&get_config_path().expect("There is no configuration file either under $THERMINAL_WHICH_KEY_CONFIG, ~/.config/terminal-which-key/init.lua or ~/.terminal-which-key/init.lua")).unwrap();
+    let config_path = &get_config_path().expect("There is no configuration file either under $THERMINAL_WHICH_KEY_CONFIG, ~/.config/terminal-which-key/init.lua or ~/.terminal-which-key/init.lua");
 
-    let pseudo_terminal = pty::PseudoTerminal::new(config);
+    let pseudo_terminal = pty::PseudoTerminal::new(config_path);
     pseudo_terminal.run();
 
     Ok(())
