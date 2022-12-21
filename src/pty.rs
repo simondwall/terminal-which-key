@@ -3,8 +3,9 @@ use std::io::Write;
 use portable_pty::CommandBuilder;
 
 use crate::{
-    config::{Child, Config, MenuConfig},
-    non_blocking_reader::{NonBlockingReader, NonBlockingEventAndRawReader}, window::Window,
+    config::{load_config_from_file, Child, Config, MenuConfig},
+    non_blocking_reader::{NonBlockingEventAndRawReader, NonBlockingReader},
+    window::Window,
 };
 
 use termion::event::{Event::Key as EventKey, Key};
@@ -16,7 +17,7 @@ pub struct PseudoTerminal {
 }
 
 impl PseudoTerminal {
-    pub fn new(config: Config<'static>) -> Self {
+    pub fn new(config_path: &str) -> Self {
         let (cols, rows) = crossterm::terminal::size().unwrap_or((80, 24));
         let pair = portable_pty::native_pty_system()
             .openpty(portable_pty::PtySize {
@@ -27,11 +28,13 @@ impl PseudoTerminal {
                 pixel_height: 0,
             })
             .unwrap();
+
+        let config =
+            load_config_from_file(config_path, pair.master.try_clone_writer().unwrap()).unwrap();
+
         let mut command = CommandBuilder::new(&config.shell_path);
         command.cwd(std::env::current_dir().unwrap());
-        pair.slave
-            .spawn_command(command)
-            .unwrap();
+        pair.slave.spawn_command(command).unwrap();
         let parser = vt100::Parser::new(rows, cols, 0);
 
         Self {
@@ -64,12 +67,20 @@ impl PseudoTerminal {
         let parser = std::sync::Arc::new(std::sync::Mutex::new(self.parser));
 
         let winch_parser = parser.clone();
-        let mut winch_stream = tokio::signal::unix::signal(tokio::signal::unix::SignalKind::window_change()).unwrap();
+        let mut winch_stream =
+            tokio::signal::unix::signal(tokio::signal::unix::SignalKind::window_change()).unwrap();
         tokio::spawn(async move {
             loop {
                 winch_stream.recv().await;
                 let (cols, rows) = crossterm::terminal::size().unwrap();
-                self.master.resize(portable_pty::PtySize { rows, cols, pixel_width: 0, pixel_height: 0 }).unwrap();
+                self.master
+                    .resize(portable_pty::PtySize {
+                        rows,
+                        cols,
+                        pixel_width: 0,
+                        pixel_height: 0,
+                    })
+                    .unwrap();
                 winch_parser.lock().unwrap().set_size(rows, cols);
             }
         });
@@ -82,8 +93,7 @@ impl PseudoTerminal {
                     if &current_menu.name != "__root" && key == Key::Esc {
                         current_menu = &root_menu;
                         Self::redraw_screen(&screen);
-                    }
-                    else if let Some(child) = current_menu
+                    } else if let Some(child) = current_menu
                         .children
                         .iter()
                         .filter(|c| match c {
@@ -94,7 +104,8 @@ impl PseudoTerminal {
                     {
                         match child {
                             Child::Menu(menu) => {
-                                screen = parser.lock().unwrap().screen().clone().contents_formatted();
+                                screen =
+                                    parser.lock().unwrap().screen().clone().contents_formatted();
                                 Self::redraw_screen(&screen);
                                 current_menu = menu;
                                 Window::new(&current_menu).draw();

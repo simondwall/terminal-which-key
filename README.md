@@ -17,7 +17,7 @@ When finished it should be similar to other which-key implementations in editors
 - [x] Fix resizing
 - [x] Fix transparent window
 - [x] Move to termion for keys instead of own implementation
-- [ ] Add twk.write
+- [x] Add twk.write
 - [ ] Add documentation
 - [ ] Add example configs
 

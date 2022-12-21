@@ -7,16 +7,19 @@ use std::{
 use crossterm::{
     cursor::{MoveDown, MoveLeft, MoveRight, MoveTo, MoveUp, RestorePosition, SavePosition},
     execute, queue,
-    style::{Print, Color, SetForegroundColor, ResetColor},
+    style::{Color, Print, ResetColor, SetForegroundColor},
     terminal::size,
 };
 
-use crate::{keys::Display, config::{Child, MenuConfig}};
+use crate::{
+    config::{Child, MenuConfig},
+    keys::Display,
+};
 
 pub struct Window {
     labels: Vec<String>,
     cols: u16,
-    rows: u16
+    rows: u16,
 }
 
 impl<'a> Window {
@@ -54,8 +57,16 @@ impl<'a> Window {
             for row in 0..rows {
                 queue!(
                     out,
-                    MoveTo(self.cols/2 + col * length - cols * length / 2, self.rows / 2 + row - rows / 2),
-                    Print(format!(" {} ", self.labels.get((col % cols + row * cols) as usize).unwrap_or(&"".to_string())))
+                    MoveTo(
+                        self.cols / 2 + col * length - cols * length / 2,
+                        self.rows / 2 + row - rows / 2
+                    ),
+                    Print(format!(
+                        " {} ",
+                        self.labels
+                            .get((col % cols + row * cols) as usize)
+                            .unwrap_or(&"".to_string())
+                    ))
                 )
                 .unwrap();
             }
@@ -81,7 +92,6 @@ impl<'a> Window {
         for y in 1..=height {
             for x in 1..=width {
                 if x == 1 {
-
                     if y == 1 {
                         queue!(out, Print("┏")).unwrap();
                     } else if y == height {
@@ -90,7 +100,6 @@ impl<'a> Window {
                         queue!(out, Print("┃")).unwrap();
                     }
                 } else if x == width {
-
                     if y == 1 {
                         queue!(out, Print("┓"), MoveDown(1), MoveLeft(width)).unwrap();
                     } else if y == height {
@@ -99,7 +108,6 @@ impl<'a> Window {
                         queue!(out, Print("┃"), MoveDown(1), MoveLeft(width)).unwrap();
                     }
                 } else {
-
                     if y == 1 || y == height {
                         queue!(out, Print("━")).unwrap();
                     } else {

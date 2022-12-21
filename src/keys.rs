@@ -646,8 +646,8 @@ impl Display for Key {
 
 #[cfg(test)]
 mod tests {
-    use termion::event::Key;
     use crate::keys::NewFromString;
+    use termion::event::Key;
 
     #[test]
     fn esc_from_string() {
