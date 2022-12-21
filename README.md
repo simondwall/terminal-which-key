@@ -4,7 +4,7 @@ A helping hand for you to remember which shortcut key does what (and it also exe
 
 ## Description
 
-This is similar to how some editors' which-key implementations such as emacs and nvim.
+This is similar to how some editors which-key implementations such as emacs and nvim.
 You usually define a *'Leader' key* which is used to open a menu.
 In this menu are submenus and actions which you can choose from with usually a single key.
 
