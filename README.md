@@ -8,6 +8,8 @@ This is similar to how some editors' which-key implementations such as emacs and
 You usually define a *'Leader' key* which is used to open a menu.
 In this menu are submenus and actions which you can choose from with usually a single key.
 
+![Screenshot](doc/Screenshot.jpg)
+
 ## Installation
 
 Currently there is no crate released to cargo or any package to any package manager.
