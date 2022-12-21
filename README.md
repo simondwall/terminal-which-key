@@ -52,7 +52,7 @@ A little example of a configuration could be this:
 ```lua
 twk.set_config(
     twk.config:new(
-        twk.menu:new("<C-Space>", "Menu")
+        twk.menu:new("<Null>", "Menu")
         :add_action(
             twk.action:new(
                 "s",
@@ -67,12 +67,32 @@ twk.set_config(
                 "e",
                 "Echo",
                 function()
-                    twk.write("echo \"Hello, World!\"\n")
+                    twk.write("echo Hello, World!\n")
                 end
             )
         )
-        ,
-        "/bin/bash"
+        :add_action(
+            twk.action:new(
+                "q",
+                "Quit Vim",
+                function()
+                    twk.write(":wq\n")
+                end
+            )
+        )
+        :add_menu(
+            twk.menu:new("g", "Git")
+            :add_action(
+                twk.action:new(
+                    "s",
+                    "Status",
+                    function()
+                        twk.write("git status\n")
+                    end
+                )
+            )
+        ),
+        "/bin/zsh"
     )
 )
 ```
