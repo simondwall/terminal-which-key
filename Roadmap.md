@@ -9,7 +9,7 @@
 - [x] Fix wrong "capitalization" (e.g. currently "\\" instead of "|")
 - [x] Fix resizing
 - [x] Fix transparent window
-- [ ] Add more keys
+- [x] Add twk.write
 - [ ] Add documentation
 - [ ] Add example configs
 
@@ -24,16 +24,14 @@
 
 ## Version 0.2.0 (Likely)
 
+- [ ] Add more keys (e.g. Umlaute)
 - [ ] Add condition support
 - [ ] Add Format Options (Theming etc.)
 - [ ] Add Miette for Error messages
-- [ ] Add Clap?
 
 ## Version 0.3.0 (Unlikely)
 
+- [ ] Add windows support
 - [ ] Add kitty graphics protocol support
 - [ ] Add kitty keyboard protocol support
-- [ ] Add different terminal support (Mostly keyboard support)
-- [ ] Add different keyboard layout support (e.g. ISO)
 - [ ] Add query capabilities (e.g. get_current_menu_name)
-- [ ] Add windows support
