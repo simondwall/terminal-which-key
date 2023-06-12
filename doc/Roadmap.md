@@ -1,4 +1,4 @@
-## Version 0.1.0
+# Version 0.1.0
 
 - [x] Fix starting from root menu
 - [x] Add going back to (root) menu
@@ -10,13 +10,14 @@
 - [x] Fix resizing
 - [x] Fix transparent window
 - [x] Add twk.write
-- [x] Add documentation
-- [ ] Add example configs
+- [x] Add example configs
 
 # Possible Roadmap
 
 ## Version 0.1.1 (Most likely)
 
+- [ ] Add documentation
+- [ ] Change directory to current directory of slave (lsof can be of help)
 - [ ] Use graphemes for counting instead of chars
 - [ ] Make more stable (Remove unwraps)
 - [ ] Port lua config builder to rust
